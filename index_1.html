@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MenuMargin - Menu & Beverage Profitability Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <h1 class="brand-title">MenuMargin</h1>
+                <p class="login-subtitle">Menu & Beverage Profitability Analytics</p>
+            </div>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password">
+                </div>
+                <div class="form-group">
+                    <label for="role" class="form-label">Role</label>
+                    <select id="role" class="form-control">
+                        <option value="owner">👑 Owner</option>
+                        <option value="manager">📊 Manager</option>
+                        <option value="chef">👨‍🍳 Chef</option>
+                        <option value="finance">💰 Finance</option>
+                    </select>
+                </div>
+                <div class="demo-toggle">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="demo-mode" checked>
+                        <span class="toggle-slider"></span>
+                        Demo Mode
+                    </label>
+                </div>
+                <button id="login-btn" class="btn btn--primary btn--full-width">Sign In to MenuMargin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="screen">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1 class="brand-title">MenuMargin</h1>
+                <span class="header-tagline">Analytics Dashboard</span>
+            </div>
+            <div class="header-right">
+                <select id="outlet-selector" class="form-control outlet-select">
+                    <option value="main">🏪 Main Outlet</option>
+                    <option value="downtown">🏢 Downtown Branch</option>
+                    <option value="mall">🛍️ Mall Location</option>
+                </select>
+                <button class="alert-btn" id="alerts-btn">
+                    <span class="alert-icon">🔔</span>
+                    <span class="alert-badge" id="alert-badge">0</span>
+                </button>
+                <div class="user-menu">
+                    <button class="user-btn" id="user-btn">
+                        <span id="current-user">Owner</span>
+                        <span class="dropdown-arrow">⚙️</span>
+                    </button>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <button class="dropdown-item" id="settings-btn">Settings</button>
+                        <button class="dropdown-item" id="logout-btn">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="app-nav">
+            <button class="nav-item active" data-page="dashboard">
+                <span class="nav-icon">📊</span>
+                Dashboard
+            </button>
+            <button class="nav-item" data-page="menu-items">
+                <span class="nav-icon">🍽️</span>
+                Menu Items
+            </button>
+            <button class="nav-item" data-page="reports">
+                <span class="nav-icon">📈</span>
+                Reports
+            </button>
+            <button class="nav-item" data-page="integrations">
+                <span class="nav-icon">🔗</span>
+                Integrations
+            </button>
+            <button class="nav-item" data-page="import">
+                <span class="nav-icon">📥</span>
+                Import Data
+            </button>
+        </nav>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page active">
+            <!-- KPI Cards -->
+            <div class="kpi-row">
+                <div class="kpi-card kpi-card--primary">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-content">
+                        <div class="kpi-title">Food Margin</div>
+                        <div class="kpi-value" id="food-margin">68%</div>
+                        <div class="kpi-trend positive">+2.3% from last month</div>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-card--success">
+                    <div class="kpi-icon">🥤</div>
+                    <div class="kpi-content">
+                        <div class="kpi-title">Beverage Margin</div>
+                        <div class="kpi-value" id="beverage-margin">72%</div>
+                        <div class="kpi-trend positive">+1.8% from last month</div>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-card--warning">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-content">
+                        <div class="kpi-title">Total Revenue</div>
+                        <div class="kpi-value" id="total-revenue">₹4,58,000</div>
+                        <div class="kpi-trend positive">+5.2% from last month</div>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-card--alert">
+                    <div class="kpi-icon">📉</div>
+                    <div class="kpi-content">
+                        <div class="kpi-title">COGS %</div>
+                        <div class="kpi-value" id="cogs-percent">32%</div>
+                        <div class="kpi-trend negative">-0.5% from last month</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-panel left-panel">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>🏆 Top 10 Profit Margins</h3>
+                            <button class="chart-export-btn" data-chart="profit-margins">📊</button>
+                        </div>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="profit-margins-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>📈 Monthly Trends</h3>
+                            <button class="chart-export-btn" data-chart="monthly-trends">📊</button>
+                        </div>
+                        <div class="chart-container" style="position: relative; height: 250px;">
+                            <canvas id="monthly-trends-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-panel right-panel">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>🎯 cost Category Breakdown</h3>
+                            <button class="chart-export-btn" data-chart="cost-breakdown">📊</button>
+                        </div>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="cost-breakdown-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>💹 Revenue Distribution</h3>
+                            <button class="chart-export-btn" data-chart="revenue-distribution">📊</button>
+                        </div>
+                        <div class="chart-container" style="position: relative; height: 250px;">
+                            <canvas id="revenue-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Items Page -->
+        <div id="menu-items-page" class="page">
+            <div class="page-header">
+                <h2>🍽️ Menu Items Management</h2>
+                <button class="btn btn--primary" id="add-item-btn">
+                    <span>➕</span> Add New Item
+                </button>
+            </div>
+            <div class="menu-tabs">
+                <button class="tab-btn active" data-tab="food">
+                    <span class="tab-icon">🍽️</span>
+                    Food Items
+                </button>
+                <button class="tab-btn" data-tab="beverages">
+                    <span class="tab-icon">🥤</span>
+                    Beverages
+                </button>
+            </div>
+            <div class="menu-table-container">
+                <table class="menu-table" id="menu-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Selling Price</th>
+                            <th>Ingredient Cost</th>
+                            <th>Margin %</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="menu-table-body">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reports Page -->
+        <div id="reports-page" class="page">
+            <div class="page-header">
+                <h2>📈 Reports & Analytics</h2>
+                <button class="btn btn--secondary" id="schedule-reports-btn">⏰ Schedule Reports</button>
+            </div>
+            <div class="reports-grid">
+                <div class="report-card" data-report="profitability-champions">
+                    <div class="report-icon">🏆</div>
+                    <h3>Profitability Champions</h3>
+                    <p>Top 10 highest margin items with detailed analysis</p>
+                    <div class="report-stats">
+                        <span class="stat">Avg Margin: 68%</span>
+                        <span class="stat">Best: 85%</span>
+                    </div>
+                    <button class="btn btn--outline">Generate Report</button>
+                </div>
+                <div class="report-card" data-report="underperformers">
+                    <div class="report-icon">⚠️</div>
+                    <h3>Underperformers Alert</h3>
+                    <p>Items with margins below 30% requiring attention</p>
+                    <div class="report-stats">
+                        <span class="stat">At Risk: 3 items</span>
+                        <span class="stat">Avg: 22%</span>
+                    </div>
+                    <button class="btn btn--outline">Generate Report</button>
+                </div>
+                <div class="report-card" data-report="cost-analysis">
+                    <div class="report-icon">💰</div>
+                    <h3>Cost Category Analysis</h3>
+                    <p>Breakdown by ingredient, labor, overhead costs</p>
+                    <div class="report-stats">
+                        <span class="stat">Ingredients: 65%</span>
+                        <span class="stat">Labor: 20%</span>
+                    </div>
+                    <button class="btn btn--outline">Generate Report</button>
+                </div>
+                <div class="report-card" data-report="monthly-trends">
+                    <div class="report-icon">📊</div>
+                    <h3>Monthly Trend Analysis</h3>
+                    <p>Profit evolution and seasonal patterns</p>
+                    <div class="report-stats">
+                        <span class="stat">Growth: +5.2%</span>
+                        <span class="stat">Best Month: May</span>
+                    </div>
+                    <button class="btn btn--outline">Generate Report</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integrations Page -->
+        <div id="integrations-page" class="page">
+            <div class="page-header">
+                <h2>🔗 System Integrations</h2>
+                <button class="btn btn--secondary" id="integration-help-btn">❓ Integration Help</button>
+            </div>
+            <div class="integrations-grid">
+                <div class="integration-card">
+                    <div class="integration-header">
+                        <h3>🏪 LUCID Restaurant POS</h3>
+                        <div class="status-badge status--warning">Pending Setup</div>
+                    </div>
+                    <p class="integration-description">Connect your POS system for real-time sales data sync</p>
+                    <div class="form-group">
+                        <label class="form-label">API Key</label>
+                        <input type="password" class="form-control" placeholder="Enter LUCID POS API Key">
+                    </div>
+                    <div class="integration-benefits">
+                        <span class="benefit">✅ Real-time sync</span>
+                        <span class="benefit">✅ Auto cost updates</span>
+                    </div>
+                    <button class="btn btn--primary">🔗 Connect Now</button>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-header">
+                        <h3>📊 Google Sheets</h3>
+                        <div class="status-badge status--info">Ready to Connect</div>
+                    </div>
+                    <p class="integration-description">Export data automatically to Google Sheets for team collaboration</p>
+                    <div class="form-group">
+                        <label class="form-label">Sheet ID</label>
+                        <input type="text" class="form-control" placeholder="Enter Google Sheet ID">
+                    </div>
+                    <div class="integration-benefits">
+                        <span class="benefit">✅ Auto export</span>
+                        <span class="benefit">✅ Team sharing</span>
+                    </div>
+                    <button class="btn btn--primary">🔗 Connect Now</button>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-header">
+                        <h3>🛵 Zomato / Swiggy</h3>
+                        <div class="status-badge status--info">Via LUCID Connector</div>
+                    </div>
+                    <p class="integration-description">Order data will sync automatically once LUCID POS is connected</p>
+                    <div class="integration-benefits">
+                        <span class="benefit">⏳ Pending LUCID</span>
+                        <span class="benefit">🔄 Auto-sync ready</span>
+                    </div>
+                    <button class="btn btn--outline" disabled>⏳ Auto-Connect</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Data Page -->
+        <div id="import-page" class="page">
+            <div class="page-header">
+                <h2>📥 Import Data</h2>
+                <button class="btn btn--secondary" id="generate-demo-btn">🎲 Generate Demo Data</button>
+            </div>
+            <div class="import-options">
+                <div class="import-card">
+                    <div class="import-icon">📄</div>
+                    <h3>Menu Items CSV</h3>
+                    <p>Upload your menu items with costs and pricing information</p>
+                    <div class="import-format">
+                        <span class="format-label">Format:</span>
+                        <code>name,category,price,cost</code>
+                    </div>
+                    <input type="file" id="menu-csv" accept=".csv" class="file-input">
+                    <button class="btn btn--outline" onclick="document.getElementById('menu-csv').click()">
+                        📁 Choose File
+                    </button>
+                </div>
+                <div class="import-card">
+                    <div class="import-icon">📊</div>
+                    <h3>Sales Data CSV</h3>
+                    <p>Import historical sales and transaction data for analysis</p>
+                    <div class="import-format">
+                        <span class="format-label">Format:</span>
+                        <code>date,item,quantity,revenue</code>
+                    </div>
+                    <input type="file" id="sales-csv" accept=".csv" class="file-input">
+                    <button class="btn btn--outline" onclick="document.getElementById('sales-csv').click()">
+                        📁 Choose File
+                    </button>
+                </div>
+                <div class="import-card">
+                    <div class="import-icon">💰</div>
+                    <h3>Ingredient Costs CSV</h3>
+                    <p>Bulk update ingredient costs and supplier data</p>
+                    <div class="import-format">
+                        <span class="format-label">Format:</span>
+                        <code>ingredient,cost,supplier,date</code>
+                    </div>
+                    <input type="file" id="costs-csv" accept=".csv" class="file-input">
+                    <button class="btn btn--outline" onclick="document.getElementById('costs-csv').click()">
+                        📁 Choose File
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Detail Modal -->
+    <div id="item-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Item Details</h3>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="item-details-container">
+                    <div class="item-form">
+                        <div class="form-group">
+                            <label class="form-label">Item Name</label>
+                            <input type="text" id="item-name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select id="item-category" class="form-control">
+                                <option value="Appetizer">Appetizer</option>
+                                <option value="Main Course">Main Course</option>
+                                <option value="Rice">Rice</option>
+                                <option value="Bread">Bread</option>
+                                <option value="South Indian">South Indian</option>
+                                <option value="Dessert">Dessert</option>
+                                <option value="Hot Beverage">Hot Beverage</option>
+                                <option value="Cold Beverage">Cold Beverage</option>
+                                <option value="Beer">Beer</option>
+                                <option value="Wine">Wine</option>
+                                <option value="Spirits">Spirits</option>
+                                <option value="Cocktail">Cocktail</option>
+                                <option value="Mocktail">Mocktail</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Selling Price (₹)</label>
+                                <input type="number" id="selling-price" class="form-control" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Ingredient Cost (₹)</label>
+                                <input type="number" id="ingredient-cost" class="form-control" step="0.01">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Labor Cost (₹)</label>
+                                <input type="number" id="labor-cost" class="form-control" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Packaging Cost (₹)</label>
+                                <input type="number" id="packaging-cost" class="form-control" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="what-if-simulator">
+                        <h4>🎯 What-If Simulator</h4>
+                        <div class="simulator-controls">
+                            <div class="form-group">
+                                <label class="form-label">Test Selling Price (₹)</label>
+                                <input type="number" id="sim-selling-price" class="form-control" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Test Ingredient Cost (₹)</label>
+                                <input type="number" id="sim-ingredient-cost" class="form-control" step="0.01">
+                            </div>
+                        </div>
+                        <div class="profitability-display">
+                            <div class="profit-metric">
+                                <span class="metric-label">Current Margin:</span>
+                                <span id="current-margin" class="metric-value">0%</span>
+                            </div>
+                            <div class="profit-metric">
+                                <span class="metric-label">Simulated Margin:</span>
+                                <span id="sim-margin" class="metric-value">0%</span>
+                            </div>
+                            <div class="profit-metric">
+                                <span class="metric-label">Profit Impact:</span>
+                                <span id="profit-impact" class="metric-value">₹0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline" id="modal-cancel">Cancel</button>
+                <button class="btn btn--primary" id="modal-save">💾 Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Modal -->
+    <div id="alerts-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🚨 Profit Alerts</h3>
+                <button class="modal-close" onclick="closeModal('alerts-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="alerts-list">
+                    <!-- Dynamic alerts content -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="export-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📊 Export Report</h3>
+                <button class="modal-close" onclick="closeModal('export-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <div class="form-group">
+                        <label class="form-label">Export Format</label>
+                        <select id="export-format" class="form-control">
+                            <option value="pdf">📄 PDF Report</option>
+                            <option value="csv">📊 CSV Data</option>
+                            <option value="png">🖼️ Chart Image</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date Range</label>
+                        <select id="date-range" class="form-control">
+                            <option value="today">📅 Today</option>
+                            <option value="week">📅 This Week</option>
+                            <option value="month">📅 This Month</option>
+                            <option value="quarter">📅 This Quarter</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline" onclick="closeModal('export-modal')">Cancel</button>
+                <button class="btn btn--primary" id="export-confirm">📥 Export</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
